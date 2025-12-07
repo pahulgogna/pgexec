@@ -25,7 +25,7 @@ func executeCommand(id string, name string, cmdString ...string) (string, error)
 
 	utils.WriteToLogFile(id, fmt.Sprintf("executing command: %s", command))
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), config.RequestTimeout*time.Second)
     defer cancel()
 
     cmd = exec.CommandContext(ctx, name, cmdString...)
