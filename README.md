@@ -93,6 +93,7 @@ Configuration constants are located in [`config/config.go`](config/config.go).
 - `RootDir`: Directory inside the container where code is stored (default: `/home/code`).
 - `LogFile`: Path to the log file stored on the host machine (default: `logs.txt`).
 - `GenerateLogFile`: Boolean to enable/disable file logging.
+- `RequestTimeout` : Timeout for commands in seconds.
 
 ## Project Structure
 
