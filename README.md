@@ -41,6 +41,13 @@ Currently, the following languages are supported:
    ```
    The server will start on `0.0.0.0:8080`.
 
+   **run with Docker:**
+   ```bash
+   docker build -t pgexec .
+   docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 pgexec
+   ```
+   *Note: Mounting `/var/run/docker.sock` is required for the application to spawn sibling containers for code execution.*
+
 2. Make a request to execute code.
 
 ### API Endpoints
