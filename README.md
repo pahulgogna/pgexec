@@ -23,6 +23,7 @@ Currently, the following languages are supported:
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/pahulgogna/pgexec.git
    cd pgexec
@@ -36,17 +37,21 @@ Currently, the following languages are supported:
 ## Usage
 
 1. Start the server:
+
    ```bash
    go run main.go
    ```
+
    The server will start on `0.0.0.0:8080`.
 
    **run with Docker:**
+
    ```bash
    docker build -t pgexec .
    docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 pgexec
    ```
-   *Note: Mounting `/var/run/docker.sock` is required for the application to spawn sibling containers for code execution.*
+
+   _Note: Mounting `/var/run/docker.sock` is required for the application to spawn sibling containers for code execution._
 
 2. Make a request to execute code.
 
@@ -68,6 +73,7 @@ Health check endpoint.
 Executes a code snippet.
 
 - **Request Body**:
+
   ```json
   {
     "language": "python",
@@ -77,6 +83,7 @@ Executes a code snippet.
   ```
 
 - **Example with Dependencies**:
+
   ```json
   {
     "language": "python",
@@ -95,17 +102,18 @@ Executes a code snippet.
 
 ## Configuration
 
-Configuration constants are located in [`config/config.go`](config/config.go).
+Configuration is managed via environment variables or a `.env` file. A `.env.example` file is provided as a template.
 
 - `RootDir`: Directory inside the container where code is stored (default: `/home/code`).
+- `CodeFileName`: The default name for the code file without extension (default: `Main`).
 - `LogFile`: Path to the log file stored on the host machine (default: `logs.txt`).
-- `GenerateLogFile`: Boolean to enable/disable file logging.
-- `RequestTimeout` : Timeout for commands in seconds.
+- `GenerateLogFile`: Boolean to enable/disable file logging (default: `true`).
+- `RequestTimeout`: Timeout for commands in seconds (default: `30`).
 
 ## Project Structure
 
 - [`main.go`](main.go): Entry point, sets up the Gin router.
 - [`executor/`](executor/): Contains logic for Docker container management and command execution.
-- [`utils`](utils ): Helper functions for language mapping and logging.
-- [`customTypes`](customTypes ): Defines data structures like `Snippet`.
-- [`config`](config ): Project configuration.
+- [`utils`](utils): Helper functions for language mapping and logging.
+- [`customTypes`](customTypes): Defines data structures like `Snippet`.
+- [`config`](config): Project configuration.
