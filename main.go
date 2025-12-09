@@ -4,12 +4,15 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pahulgogna/pgexec/config"
 	"github.com/pahulgogna/pgexec/customTypes"
 	"github.com/pahulgogna/pgexec/executor"
 	"github.com/pahulgogna/pgexec/utils"
 )
 
 func main() {
+
+	config.Init()
 
 	var router = gin.Default()
 

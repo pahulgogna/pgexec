@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/pahulgogna/pgexec/config"
 )
@@ -59,7 +60,7 @@ func WriteToLogFile(id string, data string) {
 	if err != nil {
 		log.Println("ERROR:", err)
 	}
-	if _, err := f.Write([]byte(fmt.Sprintf("%s, %s\n", id, data))); err != nil {
+	if _, err := fmt.Fprintf(f, "%s, %s, %s\n", time.Now().String(), id, data); err != nil {
 		log.Println("ERROR:", err)
 	}
 	if err := f.Close(); err != nil {
