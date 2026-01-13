@@ -1,34 +1,46 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
-var RootDir string
-var CodeFileName string
-var LogFile string
-var GenerateLogFile bool
-var RequestTimeout int
+type Config struct {
+	RequestTimeout time.Duration
+	WriteToLog     bool
+	Docker         *DockerConfig
+}
 
-func Init() {
+type DockerConfig struct {
+	RootDir      string
+	CodeFileName string
+}
+
+var Env *Config = initConfig()
+
+func initConfig() *Config {
 
 	_ = godotenv.Load()
 
-	RootDir = getEnv("RootDir", "/home/code")
-	CodeFileName = getEnv("CodeFileName", "Main")
-	LogFile = getEnv("LogFile", "logs.txt")
-	GenerateLogFile = getEnv("GenerateLogFile", "true") == "true"
-	RequestTimeout, _ = strconv.Atoi(getEnv("RequestTimeout", "30"))
+	requestTimeout, _ := strconv.Atoi(getEnv("RequestTimeout", "30"))
+
+	return &Config{
+		RequestTimeout: time.Duration(requestTimeout) * time.Second,
+		WriteToLog:     getEnv("WriteLog", "false") == "true",
+
+		Docker: &DockerConfig{
+			RootDir:      getEnv("RootDir", "/home/code"),
+			CodeFileName: getEnv("CodeFileName", "Main"),
+		},
+	}
 }
 
 func getEnv(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
-	fmt.Printf("fallback to default %s\n", key)
 	return fallback
 }
