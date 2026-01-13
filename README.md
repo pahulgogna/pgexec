@@ -1,119 +1,74 @@
 # pgexec
 
-`pgexec` is a lightweight, secure remote code execution (RCE) engine written in Go. It provides a REST API to execute code snippets in isolated environments using Docker containers.
+`pgexec` is a lightweight Go package designed for secure and isolated code execution using Docker. It provides a simple API to run arbitrary code snippets in language-specific containers, ensuring environment isolation and dependency management.
 
 ## Features
-
-- **Isolated Execution**: Runs code inside ephemeral Docker containers to ensure security and isolation.
-- **Dependency Management**: Supports installing language-specific dependencies before execution.
-- **REST API**: Simple HTTP interface built with [Gin](https://github.com/gin-gonic/gin).
-- **Logging**: Tracks execution requests and errors in a log file.
-
-## Supported Languages
-
-Currently, the following languages are supported:
-
-- **Python** (Image: `python:alpine`)
+- **Isolated Execution**: Runs code inside ephemeral Docker containers (currently using `python:alpine`).
+- **Dependency Management**: Automatically installs required packages (e.g., via `pip`) before execution.
+- **Configurable**: Easily adjust timeouts, root directories, and logging via environment variables.
+- **Simple API**: Focus on code execution with minimal boilerplate.
 
 ## Prerequisites
 
-- **Go**: Version 1.23 or higher.
+- **Go**: Version 1.22 or higher.
 - **Docker**: Must be installed and running on the host machine.
 
 ## Installation
 
-1. Clone the repository:
+```bash
+go get github.com/pahulgogna/pgexec
+```
 
-   ```bash
-   git clone https://github.com/pahulgogna/pgexec.git
-   cd pgexec
-   ```
+## Supported Languages
 
-2. Download dependencies:
-   ```bash
-   go mod download
-   ```
+| Language | Docker Image | Package Manager |
+| :--- | :--- | :--- |
+| **Python** | `python:alpine` | `pip` |
 
 ## Usage
 
-1. Start the server:
+Here is a quick example of how to use `pgexec` to run a Python snippet with dependencies:
 
-   ```bash
-   go run main.go
-   ```
+```go
+package main
 
-   The server will start on `0.0.0.0:8080`.
+import (
+	"fmt"
+	"log"
 
-   **run with Docker:**
+	"github.com/pahulgogna/pgexec"
+)
 
-   ```bash
-   docker build -t pgexec .
-   docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 pgexec
-   ```
+func main() {
+	// Define a snippet with language, code, and dependencies
+	code := `import requests; print(requests.get("https://google.com").status_code)`
+	snippet, err := pgexec.NewSnippet("python", code, "requests")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-   _Note: Mounting `/var/run/docker.sock` is required for the application to spawn sibling containers for code execution._
+	// Execute the code
+	output, err := snippet.Execute()
+	if err != nil {
+		fmt.Printf("Execution Error: %v\n", err)
+	}
 
-2. Make a request to execute code.
-
-### API Endpoints
-
-#### `GET /ping`
-
-Health check endpoint.
-
-- **Response**: `200 OK`
-  ```json
-  {
-    "message": "pong"
-  }
-  ```
-
-#### `POST /run`
-
-Executes a code snippet.
-
-- **Request Body**:
-
-  ```json
-  {
-    "language": "python",
-    "code": "print('Hello from pgexec!')",
-    "dependencies": []
-  }
-  ```
-
-- **Example with Dependencies**:
-
-  ```json
-  {
-    "language": "python",
-    "code": "import requests\nprint(requests.get('https://google.com').status_code)",
-    "dependencies": ["requests"]
-  }
-  ```
-
-- **Response**:
-  ```json
-  {
-    "data": "Hello from pgexec!\n",
-    "error": null
-  }
-  ```
+	fmt.Println("Output:")
+	fmt.Println(output)
+}
+```
 
 ## Configuration
 
-Configuration is managed via environment variables or a `.env` file. A `.env.example` file is provided as a template.
+`pgexec` can be configured using environment variables (or a `.env` file):
 
-- `RootDir`: Directory inside the container where code is stored (default: `/home/code`).
-- `CodeFileName`: The default name for the code file without extension (default: `Main`).
-- `LogFile`: Path to the log file stored on the host machine (default: `logs.txt`).
-- `GenerateLogFile`: Boolean to enable/disable file logging (default: `true`).
-- `RequestTimeout`: Timeout for commands in seconds (default: `30`).
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `RequestTimeout` | Maximum time (in seconds) for a command to run. | `30` |
+| `WriteLog` | Whether to log detailed execution info to stdout. | `false` |
+| `RootDir` | The directory inside the container where code is stored. | `/home/code` |
+| `CodeFileName` | The filename used for the snippet inside the container. | `Main` |
 
-## Project Structure
+## License
 
-- [`main.go`](main.go): Entry point, sets up the Gin router.
-- [`executor/`](executor/): Contains logic for Docker container management and command execution.
-- [`utils`](utils): Helper functions for language mapping and logging.
-- [`customTypes`](customTypes): Defines data structures like `Snippet`.
-- [`config`](config): Project configuration.
+This project is licensed under the MIT License.
