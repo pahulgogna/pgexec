@@ -10,11 +10,13 @@ import (
 	"github.com/pahulgogna/pgexec/config"
 )
 
+// Environment represents a Docker container environment for running code.
 type Environment struct {
 	tag      string
 	language string
 }
 
+// NewEnvironment creates and starts a new Docker container for the specified language.
 func NewEnvironment(language string, dependencies ...string) (*Environment, error) {
 
 	var tag string
@@ -71,6 +73,7 @@ func executeCommandHost(name string, cmdString ...string) (string, error) {
 	return out.String(), nil
 }
 
+// StopEnvironment kills the Docker container associated with the environment.
 func (e *Environment) StopEnvironment() bool {
 	_, err := executeCommandHost("docker", "kill", e.tag)
 	if err != nil {
@@ -140,11 +143,13 @@ func (e *Environment) run(code string) (string, error) {
 	return output, err
 }
 
+// Run executes the code in the Docker container and then stops the container.
 func (e *Environment) Run(code string) (string, error) {
 	defer e.StopEnvironment()
 	return e.run(code)
 }
 
+// RunAndKeep executes the code in the Docker container without stopping it.
 func (e *Environment) RunAndKeep(code string) (string, error) {
 	return e.run(code)
 }
